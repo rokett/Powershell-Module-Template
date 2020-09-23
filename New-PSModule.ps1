@@ -47,20 +47,20 @@ Param(
 
     [Parameter()]
     [ValidateSet('2.0','3.0','4.0','5.0')]
-    [string]$PowershellVersion = '3.0',
+    [string]$PowershellVersion = '5.0',
 
     [Parameter(Mandatory=$True)]
-    [string]$ModulesPath
+    [System.IO.FileInfo]$ModulesPath,
+
+    [Parameter(Mandatory=$true)]
+    [System.IO.FileInfo]$TemplateRootPath
+
 )
 
-if ($ModulesPath.Substring($ModulesPath.Length - 1) -ne '\') {
-    $ModulesPath = $ModulesPath + '\'
-}
+$rootLoaderTemplate = [string]$TemplateRootPath + '\_Templates\Module.psm1'
+$manifestTestFileTemplate = [string]$TemplateRootPath + '\_Templates\Module.Tests.ps1'
 
-$rootLoaderTemplate = $ModulesPath + '_Templates\Module.psm1'
-$manifestTestFileTemplate = $ModulesPath + '_Templates\Module.Tests.ps1'
-
-$moduleDir = $ModulesPath + $ModuleName
+$moduleDir = [string]$ModulesPath + "\" + $ModuleName
 $publicDir = $moduleDir + '\Public'
 $privateDir = $moduleDir + '\Private'
 $testsDir = $moduleDir + '\Tests'
@@ -74,7 +74,15 @@ $manifestTestFile = $testsDir + '\' + $ModuleName + '.Tests.ps1'
 $manifestFile = $moduleDir + '\' + $ModuleName + '.psd1'
 $rootLoader = $moduleDir + '\' + $ModuleName + '.psm1'
 
-New-ModuleManifest -Path $ManifestFile -Author $Author -Description $Description -PowerShellVersion $PowershellVersion -RootModule $ModuleName
+$newModuleManifestParams = @{
+    Path              = $ManifestFile
+    Author            = $Author
+    Description       = $Description
+    PowershellVersion = $PowershellVersion
+    RootModule        = $ModuleName
+}
+
+New-ModuleManifest @newModuleManifestParams
 
 Copy-Item -Path $rootLoaderTemplate -Destination $rootLoader
 Copy-Item -Path $manifestTestFileTemplate -Destination $manifestTestFile
