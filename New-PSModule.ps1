@@ -45,34 +45,30 @@ Param(
     [Parameter(Mandatory=$True)]
     [string]$Description,
 
-    [Parameter()]
-    [ValidateSet('2.0','3.0','4.0','5.0')]
-    [string]$PowershellVersion = '5.0',
+    [Parameter(Mandatory=$False)]
+    [ValidateSet('2.0','3.0','4.0','5.0','6.0','7.0')]
+    [string]$PowershellVersion = '7.0',
 
     [Parameter(Mandatory=$True)]
-    [System.IO.FileInfo]$ModulesPath,
-
-    [Parameter(Mandatory=$true)]
-    [System.IO.FileInfo]$TemplateRootPath
-
+    [System.IO.FileInfo]$ModulesPath
 )
 
-$rootLoaderTemplate = [string]$TemplateRootPath + '\_Templates\Module.psm1'
-$manifestTestFileTemplate = [string]$TemplateRootPath + '\_Templates\Module.Tests.ps1'
+$rootLoaderTemplate = Join-Path $PSScriptRoot '_Templates' 'Module.psm1'
+$manifestTestFileTemplate = Join-Path $PSScriptRoot '_Templates' 'Module.Tests.ps1'
 
-$moduleDir = [string]$ModulesPath + "\" + $ModuleName
-$publicDir = $moduleDir + '\Public'
-$privateDir = $moduleDir + '\Private'
-$testsDir = $moduleDir + '\Tests'
+$moduleDir = Join-Path $ModulesPath.FullName $ModuleName
+$publicDir = Join-Path $moduleDir 'Public'
+$privateDir = Join-Path $moduleDir 'Private'
+$testsDir = Join-Path $moduleDir 'Tests'
 
 New-Item -Path $moduleDir -Type Directory
 New-Item -Path $publicDir -Type Directory
 New-Item -Path $privateDir -Type Directory
 New-Item -Path $testsDir -Type Directory
 
-$manifestTestFile = $testsDir + '\' + $ModuleName + '.Tests.ps1'
-$manifestFile = $moduleDir + '\' + $ModuleName + '.psd1'
-$rootLoader = $moduleDir + '\' + $ModuleName + '.psm1'
+$manifestTestFile = Join-Path $testsDir "$ModuleName.Tests.ps1"
+$manifestFile = Join-Path $moduleDir "$ModuleName.psd1"
+$rootLoader = Join-Path $moduleDir "$ModuleName.psm1"
 
 $newModuleManifestParams = @{
     Path              = $ManifestFile
